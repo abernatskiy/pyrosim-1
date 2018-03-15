@@ -32,15 +32,15 @@ def get_light_sensor_time_series(sensitivityType, logarithmic):
 
     light_sensor = sim.send_light_sensor(body_id=sphere, kind_of_light=sensitivityType, logarithmic=logarithmic)
 
-    box0 = sim.send_box(x=0, y=0, z=3.25, length=0.2, width=0.2, height=0.2, r=0, g=0, b=0)
-    sim.send_fixed_joint(-1, box0)
+    box0 = sim.send_box(x=0.1, y=0, z=3.25, length=0.2, width=0.2, height=0.2, r=0, g=0, b=0)
+    sim.send_fixed_joint(-1, box0) # comment this line out to see the light source rotate with the body
     light_source0 = sim.send_light_source(box0, x=0, y=0, z=-0.15, kind_of_light=0)
 
     box1 = sim.send_box(x=-1., y=0, z=0.75, length=0.3, width=0.3, height=1.5, r=0, g=1, b=0)
-    light_source1 = sim.send_light_source(box1, x=0.5, y=0, z=0, kind_of_light=1)
+    light_source1 = sim.send_light_source(box1, x=0, y=0.5, z=0, kind_of_light=1)
 
     box2 = sim.send_box(x=-1., y=0, z=1.65+EPS, length=0.3, width=0.3, height=0.3, r=1, g=0, b=0)
-    light_source1 = sim.send_light_source(box2, x=1, y=0, z=0, kind_of_light=2)
+    light_source1 = sim.send_light_source(box2, x=0, y=1, z=0, kind_of_light=2)
 
     sim.create_collision_matrix('all')
 

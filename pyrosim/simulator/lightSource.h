@@ -41,14 +41,6 @@ private:
 	std::array<std::vector<dReal>,3> position;
 
 public:
-/*	LIGHT_SOURCE(int myID, dBodyID myBody) : ID(myID),
-	                                         offset({0.,0.,0.}),
-	                                         absPos({0.,0.,0.}),
-	                                         kind(0),
-	                                         body(myBody),
-	                                         brightness(1.0),
-	                                         positionSensorID(-1) {};
-*/
 	LIGHT_SOURCE(int myID, dBodyID myBody) : ID(myID),
 	                                         kind(0),
 	                                         body(myBody),
@@ -86,7 +78,7 @@ public:
 	void Write_To_Python(int evalPeriod) {
 		if(positionSensorID >= 0) {
 			std::ostringstream oss;
-			oss << ID << ' ' << 3 << ' ';
+			oss << positionSensorID << ' ' << 3 << ' ';
 			for(int t=0; t<evalPeriod; t++)
 				for(int i=0; i<3; i++)
 					oss << position[i][t] << ' ';
