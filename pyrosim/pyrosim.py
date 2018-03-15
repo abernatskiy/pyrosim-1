@@ -1034,10 +1034,10 @@ class Simulator(object):
         return joint_id
 
 # -----------Neurons----------------------
-    def send_bias_neuron(self):
+    def send_bias_neuron(self, value=1.0):
         """Send bias neuron to simulator.
 
-        Bias neurons emit a constant value of 1.0
+        Bias neurons emit a constant value (1.0 by default)
 
         Returns
         -------
@@ -1048,7 +1048,8 @@ class Simulator(object):
         self._num_neurons += 1
 
         self._send('BiasNeuron',
-                   neuron_id)
+                   neuron_id,
+                   value)
 
         return neuron_id
 
@@ -1211,7 +1212,7 @@ class Simulator(object):
 
         return self.send_user_input_neuron(output_vals)
 
-    def send_hidden_neuron(self, tau=1.0, alpha=1.0):
+    def send_hidden_neuron(self, tau=1.0, alpha=1.0, start_value=0.0):
         """Send a hidden neuron to the simulator
 
         Hidden neurons are basic neurons which can have inputs and outputs. 
@@ -1225,8 +1226,10 @@ class Simulator(object):
             how much of value of the neuron at the current time step comes
             from external inputs vs. the value of the neuron at the 
             previous time step.
-        alpha    :
+        alpha    : float, optional
             The 'remembrance rate' of the neuron. Usually 1 or 0.
+        start_value: float, optional
+            The initial value of the hidden neuron.
 
         Returns
         -------
@@ -1237,7 +1240,7 @@ class Simulator(object):
         neuron_id = self._num_neurons
         self._num_neurons += 1
 
-        self._send('HiddenNeuron', neuron_id, tau, alpha)
+        self._send('HiddenNeuron', neuron_id, tau, alpha, start_value)
 
         return neuron_id
 

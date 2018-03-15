@@ -28,17 +28,14 @@ void NEURON::Read_From_Python(std::string neuronTypeStr, Data* data) {
 		return;
 
 	if(type == BIAS_NEURON) {
-		value = 1.0;
+		std::cin >> value;
 		return;
 	}
 
 	std::cin >> tau;
 	std::cin >> alpha;
 
-	if(type == HIDDEN_NEURON)
-		return;
-
-	if(type == MOTOR_NEURON) {
+	if(type == MOTOR_NEURON || type == HIDDEN_NEURON) {
 		double start;
 		std::cin >> start;
 		Set(start);
@@ -64,7 +61,7 @@ void NEURON::Push_Current_Value_To_Previous_Value(void) {
 void NEURON::Reset(int timeStep) {
 
 	if ( type == BIAS_NEURON )
-		value = 1.0;
+		return;
 	else if ( type == FUNCTION_NEURON) {
 		previousValue = value;
 		value = timeValues[timeStep];
@@ -76,7 +73,6 @@ void NEURON::Reset(int timeStep) {
 void NEURON::Set(double v) {
 	if (type == BIAS_NEURON || type == FUNCTION_NEURON)
 		return;
-
 	value = v;
 }
 
@@ -86,10 +82,9 @@ void NEURON::Threshold(void) {
 		return;
 
 //	if(ID == 7)
-//	std::cerr << "Thresholding params: alpha " << alpha << " previous value " << previousValue << " tau " << tau << " value " << value << "\n";
+//	std::cerr << "ID: " << ID << " thresholding params: alpha " << alpha << " previous value " << previousValue << " tau " << tau << " value " << value << "\n";
 
 	value = alpha * previousValue + tau * value;
-
 	value = tanh(value);
 }
 
