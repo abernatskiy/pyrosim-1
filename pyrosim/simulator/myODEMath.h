@@ -9,23 +9,28 @@
 
 // Reimplementations of certain useful internal ODE functions
 
-void myDVector3Normalize(dReal* v) {
+inline void myDVector3Normalize(dReal* v) {
 
 	dReal length = sqrt(v[0]*v[0] + v[1]*v[1] + v[2]*v[2]);
 	v[0] = v[0]/length; v[1] = v[1]/length; v[2] = v[2]/length;
 }
 
-void myDVector3Subtract(const dReal* v1, const dReal* v2, dReal* dest) {
+inline void myDVector3Subtract(const dReal* v1, const dReal* v2, dReal* dest) {
 
 	dest[0] = v1[0] - v2[0]; dest[1] = v1[1] - v2[1]; dest[2] = v1[2] - v2[2];
 }
 
-void myDMatrix3LastColumnToZeros(dReal* m) {
+inline void myDVector3Add(const dReal* v1, const dReal* v2, dReal* dest) {
+
+	dest[0] = v1[0] + v2[0]; dest[1] = v1[1] + v2[1]; dest[2] = v1[2] + v2[2];
+}
+
+inline void myDMatrix3LastColumnToZeros(dReal* m) {
 
 	m[3] = 0.; m[7] = 0.; m[11] = .0;
 }
 
-void myDMultiplyMat3Vec3(const dReal* m, const dVector3& v, dVector3& r) {
+inline void myDMultiplyMat3Vec3(const dReal* m, const dVector3& v, dVector3& r) {
 
 	r[0] = m[0]*v[0] + m[1]*v[1] + m[2]*v[2];
 	r[1] = m[4]*v[0] + m[5]*v[1] + m[6]*v[2];
@@ -33,7 +38,7 @@ void myDMultiplyMat3Vec3(const dReal* m, const dVector3& v, dVector3& r) {
 	r[3] = 0.;
 }
 
-dReal myDMatrix3Det(const dReal* mat) {
+inline dReal myDMatrix3Det(const dReal* mat) {
 
 	dReal det;
 	det = mat[0] * ( mat[5]*mat[10] - mat[9]*mat[6] )
@@ -43,7 +48,7 @@ dReal myDMatrix3Det(const dReal* mat) {
 	return det;
 }
 
-void myDMatrix3Inv(const dReal* ma, dReal* dst) {
+inline void myDMatrix3Inv(const dReal* ma, dReal* dst) {
 
 	dReal det = myDMatrix3Det( ma );
 
@@ -71,7 +76,7 @@ void myDMatrix3Inv(const dReal* ma, dReal* dst) {
 	myDMatrix3LastColumnToZeros(dst);
 }
 
-void myDMatrix3Transpose(dReal* m) {
+inline void myDMatrix3Transpose(dReal* m) {
 
 	/// Transposes the matrix in place
 	dReal t[3]; // t is for temporary
@@ -82,13 +87,13 @@ void myDMatrix3Transpose(dReal* m) {
 	myDMatrix3LastColumnToZeros(m);
 }
 
-void myDMatrix3Subtract(const dReal* m1, const dReal* m2, dReal* dst) {
+inline void myDMatrix3Subtract(const dReal* m1, const dReal* m2, dReal* dst) {
 
 	for(unsigned i=0; i<12; i++)
 		dst[i] = m1[i] - m2[i];
 }
 
-void myDMatrix3Copy(const dReal* src, dReal* dst) {
+inline void myDMatrix3Copy(const dReal* src, dReal* dst) {
 
 	for(unsigned i=0; i<12; i++)
 		dst[i] = src[i];
@@ -96,14 +101,14 @@ void myDMatrix3Copy(const dReal* src, dReal* dst) {
 
 // IO for ODE types
 
-void myPrintDMatrix3(std::ostream& stream, const dReal* m) {
+inline void myPrintDMatrix3(std::ostream& stream, const dReal* m) {
 
 	stream << m[0] << ' ' << m[1] << ' ' << m[2] << ' ' << m[3] << '\n'
 	       << m[4] << ' ' << m[5] << ' ' << m[6] << ' ' << m[7] << '\n'
 	       << m[8] << ' ' << m[9] << ' ' << m[10]<< ' ' << m[11]<< '\n';
 }
 
-void myPrintDVector3(std::ostream& stream, const dVector3& v) {
+inline void myPrintDVector3(std::ostream& stream, const dVector3& v) {
 
 	stream << v[0] << ' ' << v[1] << ' ' << v[2] << ' ' << v[3];
 }

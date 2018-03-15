@@ -1273,7 +1273,7 @@ class Simulator(object):
 
         return True
 
-    def send_light_source(self, body_id, x=0., y=0., z=0., kind_of_light=0):
+    def send_light_source(self, body_id, x=0., y=0., z=0., kind_of_light=0, send_position_sensor=False):
         """Attaches light source to a body in simulation.
 
         Parameters
@@ -1304,13 +1304,20 @@ class Simulator(object):
         light_source_id = self._num_light_sources
         self._num_light_sources += 1
 
+        if(send_position_sensor):
+            position_sensor_id = self._num_sensors
+            self._num_sensors += 1
+        else:
+            position_sensor_id = -1
+
         self._send('LightSource',
                    light_source_id,
                    body_id,
                    x,y,z,
-                   kind_of_light)
+                   kind_of_light,
+                   position_sensor_id)
 
-        return light_source_id
+        return light_source_id, position_sensor_id
 
 # ----------Sensors----------------------
     def send_is_seen_sensor(self, body_id):

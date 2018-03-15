@@ -7,6 +7,8 @@
 #include <ode/ode.h>
 #include <drawstuff/drawstuff.h>
 
+#include "myODEMath.h"
+
 #ifdef dDOUBLE
 #define dsDrawSphere dsDrawSphereD
 #endif // dDOUBLE
@@ -29,23 +31,36 @@ class LIGHT_SOURCE {
 
 private:
 	int ID;
-	dReal ox, oy, oz;
+	dVector3 offset; // offset of the light source in the body's coordinate system
+	dVector3 absPos; // absolute coordinates of the light source
 	int kind;
 	dBodyID body;
 	const dReal brightness;
 
+	int positionSensorID;
+	std::array<std::vector<dReal>,3> position;
+
 public:
-	LIGHT_SOURCE(int myID, dBodyID myBody) : ID(myID),
-	                                         ox(0.), oy(0.), oz(0.),
+/*	LIGHT_SOURCE(int myID, dBodyID myBody) : ID(myID),
+	                                         offset({0.,0.,0.}),
+	                                         absPos({0.,0.,0.}),
 	                                         kind(0),
 	                                         body(myBody),
-	                                         brightness(1.0) {};
+	                                         brightness(1.0),
+	                                         positionSensorID(-1) {};
+*/
+	LIGHT_SOURCE(int myID, dBodyID myBody) : ID(myID),
+	                                         kind(0),
+	                                         body(myBody),
+	                                         brightness(1.0),
+	                                         positionSensorID(-1) {};
 
 	void Read_From_Python(void) {
-		std::cin >> ox;
-		std::cin >> oy;
-		std::cin >> oz;
+		std::cin >> offset[0];
+		std::cin >> offset[1];
+		std::cin >> offset[2];
 		std::cin >> kind;
+		std::cin >> positionSensorID;
 	};
 
 	dReal Luminousity_At(dReal x, dReal y, dReal z, int kindOfLight) {
@@ -63,21 +78,45 @@ public:
 	void Draw(void) {
 		const dReal* col = getSensorColor();
 		dsSetColor(col[0], col[1], col[2]);
-
-		const dReal* bpos = dBodyGetPosition(body);
-		dReal pos[4];
-		pos[0] = bpos[0] + ox; pos[1] = bpos[1] + oy; pos[2] = bpos[2] + oz; pos[3] = 0.;
+		Update_Absolute_Position();
 		const dReal* rot = dBodyGetRotation(body);
-		dsDrawSphere(pos, rot, LIGHT_SOURCE_RADIUS);
+		dsDrawSphere(absPos, rot, LIGHT_SOURCE_RADIUS);
 	};
 
+	void Write_To_Python(int evalPeriod) {
+		if(positionSensorID >= 0) {
+			std::ostringstream oss;
+			oss << ID << ' ' << 3 << ' ';
+			for(int t=0; t<evalPeriod; t++)
+				for(int i=0; i<3; i++)
+					oss << position[i][t] << ' ';
+			oss << '\n';
+			std::cout << oss.str();
+		}
+	};
+
+	void Poll_Sensors(void) {
+		if(positionSensorID >= 0) {
+			Update_Absolute_Position();
+			for(int i=0; i<3; i++)
+				position[i].push_back(absPos[i]);
+		}
+	};
 
 private:
 	dReal Square_Distance_To(dReal x, dReal y, dReal z) {
-		const dReal* bodyPos = dBodyGetPosition(body);
-		dReal dx, dy, dz;
-		dx = bodyPos[0] + ox - x; dy = bodyPos[1] + oy - y; dz = bodyPos[2] + oz - z;
+		Update_Absolute_Position();
+		double dx, dy, dz;
+		dx = absPos[0] - x; dy = absPos[1] - y; dz = absPos[2] - z;
 		return dx*dx + dy*dy + dz*dz;
+	};
+
+	void Update_Absolute_Position(void) {
+		const dReal* rot = dBodyGetRotation(body);
+		dVector3 absOffset;
+		myDMultiplyMat3Vec3(rot, offset, absOffset);
+		const dReal* pos = dBodyGetPosition(body);
+		myDVector3Add(pos, absOffset, absPos);
 	};
 
 	const dReal* getSensorColor(void) {

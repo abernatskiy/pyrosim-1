@@ -10,6 +10,7 @@
 #include "object.h"
 #include "texturepath.h"
 #include "geomData.h"
+#include "myODEMath.h"
 
 #ifdef dDOUBLE
 #define dsDrawLine dsDrawLineD
@@ -251,6 +252,9 @@ void OBJECT::Poll_Sensors(int numObjects, OBJECT** objects, int t) {
 
 	if ( vestibularSensor )
 		vestibularSensor->Poll(body,t);
+
+	for(auto it=lightSources.begin(); it!=lightSources.end(); it++)
+		it->Poll_Sensors();
 }
 
 void OBJECT::Read_From_Python(dWorldID world, dSpaceID space, int shape) {
@@ -361,6 +365,9 @@ void OBJECT::Write_To_Python(int evalPeriod) {
         std::cerr << "  writing is seen sensor to python "  << std::endl;
         isSeenSensor->Write_To_Python(evalPeriod);
     }
+
+	for(auto it=lightSources.begin(); it!=lightSources.end(); it++)
+		it->Write_To_Python(evalPeriod);
 }
 
 // ------------------------------- Private methods ------------------------------
