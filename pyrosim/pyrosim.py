@@ -1244,6 +1244,63 @@ class Simulator(object):
 
         return neuron_id
 
+    def send_parallel_switch(self, num_channels, num_options):
+        """Send a virtual group of neurons that enables the controller to
+           have subnetworks and switch between them.
+
+        A switch with N channels and M options has:
+         - N*M input neurons - one N-dimensional channel for each
+           option;
+         - N output neurons - a single N-dimensional output;
+         - M control neurons - the maximum value among those decides
+           which option is currently selected.
+
+        Parameters
+        ----------
+        num_channels : int
+            The dimensionality of all regular inputs and the output N
+        num_options  : int
+            Number of options M
+
+        Returns
+        -------
+        inputs, outputs, controls
+            Arrays of virtual neuron IDs:
+             - inputs[i] is an N-dimensional input that is forwarded to
+               the output when i-th option is actiavated (i=0..M-1).
+               Example for N=2 and M=3:
+                 20 21 22 23 24 25
+               In this example, signals from IDs 20 and 21 will be
+               forwarded to the output when 0th option is active; from
+               22 and 23 when 1st option is active; and 24 and 25 for
+               the third.
+             - outputs is the N-dimensional output.
+             - controls in an array of M control inputs. The number of
+               the largest control input determines the number of option
+               to be activated.
+        """
+        assert num_channels > 0, 'Number of channels in a parallel swich must be positive'
+        assert num_options > 1, 'Number of channels in a parallel swich must be greater than 1'
+
+        inputs = []
+        for _ in range(num_options):
+            inputs.append(list(range(self._num_neurons, self._num_neurons+num_channels)))
+            self._num_neurons += num_channels
+
+
+
+        outputs = list(range(self._num_neurons, self._num_neurons+num_channels))
+        self._num_neurons += num_channels
+
+        controls = list(range(self._num_neurons, self._num_neurons+num_options))
+        self._num_neurons += num_options
+
+        to_send = ['ParallelSwitch', num_channels, num_options] + sum(inputs, []) + outputs + controls
+
+        self._send(*to_send)
+
+        return inputs, outputs, controls
+
 # ---------PhysicalProperties--------------------
     def send_external_force(self, body_id, x, y, z, time=0):
         """Sends a directed force to a body at a specific time

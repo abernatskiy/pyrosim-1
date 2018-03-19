@@ -19,6 +19,10 @@ bool NEURAL_NETWORK::Is_A_Neuron_Type(std::string typeName) {
 	return stringToNeuronTypeMap.find(typeName) != stringToNeuronTypeMap.end();
 }
 
+bool NEURAL_NETWORK::Is_A_Switch_Type(std::string typeName) {
+	return typeName.compare("ParallelSwitch") == 0;
+}
+
 bool NEURAL_NETWORK::Is_A_Synapse_Type(std::string typeName) {
 	return typeName.compare("Synapse") == 0;
 }
@@ -64,9 +68,15 @@ void NEURAL_NETWORK::Read_Neuron_From_Python(std::string neuronTypeStr, ENVIRONM
 
 void NEURAL_NETWORK::Read_Synapse_From_Python(std::string synapseTypeStr, ENVIRONMENT* environment, Data* data) {
 
-    synapses[numSynapses] = new SYNAPSE();
-    synapses[numSynapses]->Read_From_Python();
-    numSynapses++;
+	synapses[numSynapses] = new SYNAPSE();
+	synapses[numSynapses]->Read_From_Python();
+	numSynapses++;
+}
+
+void NEURAL_NETWORK::Read_Switch_From_Python(std::string switchTypeStr, ENVIRONMENT* environment, Data* data) {
+	parallelSwitches[numParallelSwitches] = new PARALLEL_SWITCH();
+	parallelSwitches[numParallelSwitches]->Read_From_Python();
+	numParallelSwitches++;
 }
 
 void NEURAL_NETWORK::Update(int timeStep) {

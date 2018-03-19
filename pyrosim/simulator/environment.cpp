@@ -152,6 +152,8 @@ void ENVIRONMENT::Read_From_Python(dWorldID world, dSpaceID space, Data* data)
 			neuralNetwork->Read_Neuron_From_Python(incomingString, this, data);
 		else if ( neuralNetwork->Is_A_Synapse_Type(incomingString) )
 			neuralNetwork->Read_Synapse_From_Python(incomingString, this, data);
+		else if ( neuralNetwork->Is_A_Switch_Type(incomingString) )
+			neuralNetwork->Read_Switch_From_Python(incomingString, this, data);
 
 		//If the string was not recognized, exit with error
 		else {
