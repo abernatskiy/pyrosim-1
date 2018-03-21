@@ -11,12 +11,15 @@ import shutil
 
 from datetime import datetime
 
-#simulator init constants
+# Simulator init constants
 evaluation_time = 100;
 dt = 0.05;
 hpr=[121,-27.5000,0.0000];
 xyz=[0.8317,-0.9817,0.8000];
 gravity = -1.0;
+
+# Module-wide variables
+_nextSimulatorID = 0
 
 def make_sure_path_exists(path):
     try:
@@ -25,7 +28,6 @@ def make_sure_path_exists(path):
     except OSError as exception:
         if exception.errno != errno.EEXIST:
             raise
-
 
 class Simulator(object):
     """Python interface for ODE simulator
@@ -81,6 +83,10 @@ class Simulator(object):
         assert play_blind == False or eval_time > 0, ('Cannot run'
                                                       ' blind forever')
         assert eval_time > 0, ('Cannot run forever: FIXXX MEEE')
+
+        global _nextSimulatorID
+        self.id = _nextSimulatorID
+        _nextSimulatorID += 1
 
         self.strings_to_send = []
 
