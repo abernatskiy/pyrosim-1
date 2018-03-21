@@ -74,8 +74,15 @@ void NEURAL_NETWORK::Read_Synapse_From_Python(std::string synapseTypeStr, ENVIRO
 }
 
 void NEURAL_NETWORK::Read_Switch_From_Python(std::string switchTypeStr, ENVIRONMENT* environment, Data* data) {
+
 	parallelSwitches[numParallelSwitches] = new PARALLEL_SWITCH();
 	parallelSwitches[numParallelSwitches]->Read_From_Python();
+
+	int numVirtualNeurons = parallelSwitches[numParallelSwitches]->Get_Total_Number_Of_Virtual_Neurons();
+	for(int i=numNeurons; i<numNeurons+numVirtualNeurons; i++)
+		neurons[i] = NULL;
+	numNeurons += numVirtualNeurons;
+
 	numParallelSwitches++;
 }
 
@@ -84,6 +91,8 @@ void NEURAL_NETWORK::Update(int timeStep) {
 	Push_Current_Values_To_Previous_Values();
 
 	Reset_Neuron_Values(timeStep);
+	Reset_Switches();
+
 	Update_Synapses(timeStep);
 
 	Update_Neurons();
@@ -95,19 +104,28 @@ void NEURAL_NETWORK::Update(int timeStep) {
 void NEURAL_NETWORK::Push_Current_Values_To_Previous_Values(void) {
 
 	for (int n = 0 ; n < numNeurons ; n++ )
-		neurons[n]->Push_Current_Value_To_Previous_Value();
+		if(neurons[n])
+			neurons[n]->Push_Current_Value_To_Previous_Value();
 }
 
 void NEURAL_NETWORK::Reset_Neuron_Values(int timeStep) {
 
 	for ( int n = 0 ; n < numNeurons ; n++ )
-		neurons[n]->Reset(timeStep);
+		if(neurons[n])
+			neurons[n]->Reset(timeStep);
+}
+
+void NEURAL_NETWORK::Reset_Switches(void) {
+
+	for(int psi=0; psi<numParallelSwitches; psi++)
+		parallelSwitches[psi]->Reset();
 }
 
 void NEURAL_NETWORK::Threshold_Neurons(void) {
 
 	for ( int n = 0 ; n < numNeurons ; n++ )
-		neurons[n]->Threshold();
+		if(neurons[n])
+			neurons[n]->Threshold();
 }
 
 void NEURAL_NETWORK::Update_Synapses(int timeStep){
@@ -118,16 +136,44 @@ void NEURAL_NETWORK::Update_Synapses(int timeStep){
 
 void NEURAL_NETWORK::Update_Neurons(void) {
 
-	for ( int s = 0 ; s < numSynapses ; s++ ) {
+	// We begin by setting the input values of the control virtual neurons of switches,
+	// so that by the time we get to updating the values of real neurons the switches will
+	// "know" which inputs to use
+	for(int n=0; n<numNeurons; n++) {
 
-		int sni = synapses[s]->Get_Source_Neuron_Index();
+		if(neurons[n]) {
+			int nid = neurons[n]->Get_ID();
+			for(int psi=0; psi<numParallelSwitches; psi++) {
+				if(parallelSwitches[psi]->Is_A_Control_Neuron_Of_This_Switch(nid))
+					parallelSwitches[psi]->Set_Control_Neuron_Value(nid, neurons[n]->Get_Previous_Value());
+			}
+		}
+	}
+
+	for(int s=0; s<numSynapses; s++) {
+
 		int tni = synapses[s]->Get_Target_Neuron_Index();
+		int sni = synapses[s]->Get_Source_Neuron_Index();
+
+		// Now that the switches "know" which inputs to use, we simply forward inputs through them and update neurons as usual
+		bool forward = true;
+		while(forward) {
+			forward = false;
+			for(int psi=0; psi<numParallelSwitches; psi++) {
+				if(parallelSwitches[psi]->Is_A_Virtual_Output_Neuron_Of_This_Switch(sni)) {
+					sni = parallelSwitches[psi]->Get_Input_ID(sni);
+					forward = true;
+				}
+			}
+		}
+
 		double w = synapses[s]->Get_Weight();
+
 		double influence = w * neurons[sni]->Get_Previous_Value();
 
 //		int testNeuronID = 7;
 //		if(tni == testNeuronID)
-//			std::cerr << "Neuron " << sni << " influenced neuron " << tni << " by " << influence << "\n";
+//		std::cerr << "Neuron " << sni << " influenced neuron " << tni << " by " << influence << ". Pointers: " << neurons[sni] << " " << neurons[tni] << "\n";
 
 		neurons[tni]->Set( neurons[tni]->Get_Value() + influence );
 	}

@@ -36,21 +36,11 @@ slow_fneuron = sim.send_function_neuron(function=math.sin)
 switch_fneuron = sim.send_function_neuron(function=lambda x: math.sin(x/4))
 switch_bias = sim.send_bias_neuron(value=0.0)
 
-psinput, psoutput, pscontrol = sim.send_parallel_switch(2, 2)
-
 # Both bots either wave fast or slow
-sim.send_synapse(fast_fneuron, psinput[0][0], weight=1.)
-sim.send_synapse(fast_fneuron, psinput[0][1], weight=1.)
-
-sim.send_synapse(slow_fneuron, psinput[1][0], weight=1.)
-sim.send_synapse(slow_fneuron, psinput[1][1], weight=1.)
-
+# The regime is governed by the slowest function neuron
+psoutput = sim.send_parallel_switch(2, 2, [[fast_fneuron, fast_fneuron], [slow_fneuron, slow_fneuron]], [switch_fneuron, switch_bias])
 sim.send_synapse(psoutput[0], mn1, weight=1.)
 sim.send_synapse(psoutput[1], mn2, weight=1.)
-
-# The regime is governed by the slowest function neuron
-sim.send_synapse(switch_fneuron, pscontrol[0], weight=1.)
-sim.send_synapse(switch_bias, pscontrol[1], weight=1.)
 
 sim.start()
 

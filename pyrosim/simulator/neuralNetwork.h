@@ -50,6 +50,7 @@ private:
 	void Push_Current_Values_To_Previous_Values(void);
 
 	void Reset_Neuron_Values(int timeStep);
+	void Reset_Switches(void);
 
 	void Threshold_Neurons(void);
 
