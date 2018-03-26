@@ -13,7 +13,7 @@
 #define dsDrawSphere dsDrawSphereD
 #endif // dDOUBLE
 
-#define LIGHT_SOURCE_RADIUS 0.05
+#define LIGHT_SOURCE_RADIUS 0.2
 
 // Rainbow colors from https://www.webnots.com/vibgyor-rainbow-color-codes/
 // Python one-liner converter: '{' + ', '.join(["{0:.2f}".format(float(x)/255.) for x in [255, 127, 0]]) + '}'
