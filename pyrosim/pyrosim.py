@@ -95,6 +95,8 @@ class Simulator(object):
         self._num_sensors = 0
         self._num_neurons = 0
         self._num_light_sources = 0
+        self._num_synapses = 0
+        self._num_switches = 0
         self._collision_groups = []
         self._collision_matrix = None
         self._matrix_created = False
@@ -147,6 +149,20 @@ class Simulator(object):
         else:
             self._send('Debug', 0)
         self.send_camera(xyz, hpr)
+
+    def is_a_valid_simulation(self):
+        '''Checks if the requirement imposed on the simulation size by pyrosim/simulator/constants.h are satisfied'''
+        if self._num_bodies > 1000:
+            return False, 'Too many bodies'
+        if self._num_joints > 1000:
+            return False, 'Too many joints'
+        if self._num_neurons > 2000:
+            return False, 'Too many neurons'
+        if self._num_synapses > 1000000:
+            return False, 'Too many synapses'
+        if self._num_switches > 100:
+            return False, 'Too many switches'
+        return True
 
 # ------Collisions-------------------------
     def create_collision_matrix(self, collision_type='none'):
@@ -1288,6 +1304,8 @@ class Simulator(object):
 
         to_send = ['ParallelSwitch', num_channels, num_options] + sum(inputs, []) + outputs + controls
 
+        self._num_switches += 1
+
         self._send(*to_send)
 
         return outputs
@@ -1652,6 +1670,8 @@ class Simulator(object):
         assert target_neuron_id < self._num_neurons, 'Neuron with id ' + \
             str(target_neuron_id)+' has not been sent'
 
+        self._num_synapses += 1
+
         return self.send_developing_synapse(source_neuron_id=source_neuron_id,
                                             target_neuron_id=target_neuron_id,
                                             start_weight=weight,
@@ -1706,6 +1726,8 @@ class Simulator(object):
 
         start_time = int(start_time * (self.eval_time-1))
         end_time = int(end_time * (self.eval_time-1))
+
+        self._num_synapses += 1
 
         self._send('Synapse',
                    source_neuron_id, target_neuron_id,
