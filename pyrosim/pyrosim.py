@@ -162,7 +162,7 @@ class Simulator(object):
             return False, 'Too many synapses'
         if self._num_switches > 100:
             return False, 'Too many switches'
-        return True
+        return True, None
 
 # ------Collisions-------------------------
     def create_collision_matrix(self, collision_type='none'):
