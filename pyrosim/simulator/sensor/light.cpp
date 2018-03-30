@@ -7,7 +7,9 @@
 
 LIGHT_SENSOR::LIGHT_SENSOR(int myID, int evalPeriod) : SENSOR(myID, evalPeriod),
                                                        sensitivityKind(0),
-                                                       logarithmic(false) {};
+                                                       logarithmic(false),
+                                                       initialLuminousity(1.),
+                                                       initialLuminousityMeasured(false) {};
 
 void LIGHT_SENSOR::Read_From_Python(void) {
 
@@ -17,7 +19,12 @@ void LIGHT_SENSOR::Read_From_Python(void) {
 
 void LIGHT_SENSOR::Poll(dReal luminousity, int t) {
 
-	values[0][t] = logarithmic ? log(luminousity) : luminousity;
+	if(!initialLuminousityMeasured) {
+		initialLuminousity = luminousity;
+		initialLuminousityMeasured = true;
+	}
+
+	values[0][t] = logarithmic ? log(luminousity/initialLuminousity) + 1.0 : luminousity;
 }
 
 #endif // _SENSOR_LIGHT_CPP

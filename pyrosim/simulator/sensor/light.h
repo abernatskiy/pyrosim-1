@@ -9,6 +9,8 @@ class LIGHT_SENSOR : public SENSOR {
 private:
 	int sensitivityKind;
 	bool logarithmic;
+	double initialLuminousity;
+	double initialLuminousityMeasured;
 
 public:
 	LIGHT_SENSOR(int myID, int evalPeriod);
