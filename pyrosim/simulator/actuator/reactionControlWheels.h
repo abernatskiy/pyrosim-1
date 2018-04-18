@@ -8,13 +8,13 @@ class REACTION_CONTROL_WHEELS : public ACTUATOR {
 
 private:
 	int	firstObjectID;
-	double mbx, mby, mbz; // FIXME: momentum budgets ignored for now
+	dVector3 mb, cm; // momentum budget & current accumulated momentum
 	double maxTorque;
 	OBJECT* firstObject;
 
 public:
 	REACTION_CONTROL_WHEELS (void) : ACTUATOR(3),
-	                 mbx(1.), mby(1.), mbz(1.),
+	                 mb({1.,1.,1.}), cm({0.,0.,0.}),
 	                 maxTorque(1.),
 	                 firstObject(NULL) {};
 
