@@ -1010,7 +1010,7 @@ class Simulator(object):
 
         return joint_id
 
-    def send_thruster(self, body_id, x=0, y=0, z=-1, lo=-10.0, hi=10.0, threshold=-1.):
+    def send_thruster(self, body_id, x=0, y=0, z=-1, lo=-10.0, hi=10.0, threshold=-1., momentumBudget=-1.):
         """Send a thruster engine to the specified body
 
         The thruster engine provides a linear force to the center of
@@ -1036,6 +1036,10 @@ class Simulator(object):
 		        Specifies a shutoff threshold for the thruster.
 		        If output of the motor neuron falls below this
 		        number, the thruster is shut down.
+        momentumBudget : float, optional
+            Specifies the total momentum the thruster can produce
+            before it ceses functioning. Negative values mean
+            infinite budget. Default is -1.
 
         Returns
         -------
@@ -1051,7 +1055,8 @@ class Simulator(object):
         self._send('Thruster', joint_id,
                    body_id,
                    x, y, z,
-                   lo, hi, threshold)
+                   lo, hi, threshold,
+                   momentumBudget)
 
         return joint_id
 

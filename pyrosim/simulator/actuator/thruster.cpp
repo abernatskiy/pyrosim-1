@@ -7,6 +7,7 @@
 #include <cstdlib>
 
 #include "thruster.h"
+#include "datastruct.h"
 
 #ifdef dDOUBLE
 #define dsDrawLine dsDrawLineD
@@ -16,23 +17,44 @@
 #define dsDrawCapsule dsDrawCapsuleD
 #endif
 
+extern Data* data;
+
+void THRUSTER::Read_From_Python(void) {
+
+	std::cin >> ID;
+
+	std::cin >> firstObject;
+	std::cin >> x;
+	std::cin >> y;
+	std::cin >> z;
+	std::cin >> lowStop;
+	std::cin >> highStop;
+	std::cin >> shutoffThreshold;
+	std::cin >> momentumBudget;
+}
+
 void THRUSTER::Actuate(void) {
 
 	if ( motorNeurons[0] == NULL )
 		return;
 
 	double motorNeuronValue = motorNeurons[0]->Get_Value();
-
 	if ( motorNeuronValue < shutoffThreshold )
 		return;
 
 	double zeroToOne = (motorNeuronValue - shutoffThreshold)/(1. - shutoffThreshold);
-
-	double diff;
-
 	double desiredTarget = zeroToOne * ( highStop - lowStop ) + lowStop;
 
-	double currentTarget;
+	if(momentumBudget > 0) { // negative budget means infinite budget
+		double newMomentumUsed = momentumUsed + (data->dt)*desiredTarget;
+		if(newMomentumUsed > momentumBudget) {
+			lastDesired = 0.;
+			return;
+		}
+		else {
+			momentumUsed = newMomentumUsed;
+		}
+	}
 
 	const dReal *R = dBodyGetRotation(first->Get_Body());
 	dReal xDir, yDir, zDir;
@@ -40,9 +62,6 @@ void THRUSTER::Actuate(void) {
 	xDir = R[0]*x + R[1]*y + R[2]*z;
 	yDir = R[4]*x + R[5]*y + R[6]*z;
 	zDir = R[8]*x + R[9]*y + R[10]*z;
-
-//	std::cerr << "Thrust: " << desiredTarget << " motor neuron val: " << motorNeuronValue << "\n";
-//	motorNeurons[0]->Print();
 
 	dBodyAddForce(first->Get_Body(), -xDir*desiredTarget, -yDir*desiredTarget, -zDir*desiredTarget);
 	lastDesired = desiredTarget;
@@ -54,9 +73,7 @@ void THRUSTER::Create_In_Simulator(dWorldID world, OBJECT ** allObjects, int num
 		first = allObjects[firstObject];
 
 	dReal mag = sqrt(x*x + y*y + z*z);
-	x = x/mag;
-	y = y/mag;
-	z = z/mag;
+	x = x/mag; y = y/mag; z = z/mag;
 
 	const dReal *R = dBodyGetRotation(first->Get_Body());
 	dReal xDir, yDir, zDir;
@@ -65,12 +82,12 @@ void THRUSTER::Create_In_Simulator(dWorldID world, OBJECT ** allObjects, int num
 	yDir = R[1]*x + R[5]*y + R[9]*z;
 	zDir = R[2]*x + R[6]*y + R[10]*z;
 
-	x = xDir;
-	y = yDir;
-	z = zDir;
+	x = xDir;	y = yDir;	z = zDir;
 }
 
 void THRUSTER::Draw() const {
+
+//	std::cerr << lastDesired << std::endl;
 
 	dVector3 jointPosition;
 	dVector3 jointAxis;
@@ -121,17 +138,39 @@ void THRUSTER::Draw() const {
 	}
 }
 
-void THRUSTER::Read_From_Python(void) {
+bool THRUSTER::Create_Proprioceptive_Sensor(int sensorID, int evalPeriod) {
 
-	std::cin >> ID;
+	proprioceptiveSensor = new PROPRIOCEPTIVE_THRUSTER_SENSOR(sensorID, evalPeriod);
+	return true;
+}
 
-	std::cin >> firstObject;
-	std::cin >> x;
-	std::cin >> y;
-	std::cin >> z;
-	std::cin >> lowStop;
-	std::cin >> highStop;
-	std::cin >> shutoffThreshold;
+void THRUSTER::Poll_Sensors(int currentTimestep) {
+
+	if(proprioceptiveSensor) {
+		double reading = momentumBudget>0 ? 1. - 2.*momentumUsed/momentumBudget : 1.;
+		proprioceptiveSensor->Poll(reading, currentTimestep);
+	}
+}
+
+void THRUSTER::Update_Sensor_Neurons(int t) {
+
+	if(proprioceptiveSensor)
+		proprioceptiveSensor->Update_Sensor_Neurons(t);
+}
+
+void THRUSTER::Write_To_Python(int evalPeriod) const {
+
+	if(proprioceptiveSensor)
+		proprioceptiveSensor->Write_To_Python(evalPeriod);
+}
+
+bool THRUSTER::Connect_Sensor_To_Sensor_Neuron(int sensorID, int sensorValueIndex, NEURON* sNeuron) {
+
+  if(proprioceptiveSensor && proprioceptiveSensor->Get_ID() == sensorID) {
+      proprioceptiveSensor->Connect_To_Sensor_Neuron(sNeuron, sensorValueIndex);
+      return true;
+	}
+  return false;
 }
 
 #endif // _ACTUATOR_THRUSTER_CPP
