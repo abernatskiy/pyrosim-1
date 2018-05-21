@@ -9,7 +9,7 @@ ifeq ($(UNAME), Darwin)
 endif
 
 CXX=g++
-CXXFLAGS=-std=c++11 -DHAVE_CONFIG_H -I. -Iode-0.12/ode/src -Iode-0.12/include -DdTRIMESH_ENABLED -DdDOUBLE  -g -O2 -MT -MP
+CXXFLAGS=-std=c++11 -DHAVE_CONFIG_H -I. -isystem ode-0.12/include -Iode-0.12/ode/src -DdTRIMESH_ENABLED -DdDOUBLE  -g -O2 -MT -MP
 BIN=simulator
 
 SRC=$(wildcard *.cpp */*.cpp)
