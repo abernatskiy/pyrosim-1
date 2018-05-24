@@ -1868,11 +1868,6 @@ class Simulator(object):
     def _collect_sensor_data(self, data_from_simulator):
         """Get sensor data back from ODE and store it in numpy array"""
 
-        # NOTE: update the line below every time the maximum number of
-        # sensor channels increases.
-        self.data = np.zeros([self._num_sensors, 6,
-                              self.eval_time], dtype='f')
-
         debug_output = data_from_simulator[1]
 
         if self.debug:
@@ -1887,7 +1882,13 @@ class Simulator(object):
         data_from_simulator = data_from_simulator.split()
 
         if (data_from_simulator == []):
-            return
+            raise RuntimeError('No data from simulator!')
+
+        # NOTE: update the line below every time the maximum number of
+        # sensor channels increases.
+
+        self.data = np.zeros([self._num_sensors, 6,
+                              self.eval_time], dtype='f')
 
         index = 0
         while (data_from_simulator[index] != 'Done'):
