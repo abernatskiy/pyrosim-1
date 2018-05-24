@@ -46,7 +46,8 @@ void THRUSTER::Actuate(void) {
 	double desiredTarget = zeroToOne * ( highStop - lowStop ) + lowStop;
 
 	if(momentumBudget > 0) { // negative budget means infinite budget
-		double newMomentumUsed = momentumUsed + (data->dt)*desiredTarget;
+		double newMomentumUsed = momentumUsed + (data->dt)*(desiredTarget>0 ? desiredTarget : -desiredTarget);
+//		std::cerr << "zto: " << zeroToOne << " dtgt: " << desiredTarget << " mu: " << momentumUsed << " nmu: " << newMomentumUsed << " hs: " <<  highStop << " ls: " << lowStop << std::endl;
 		if(newMomentumUsed > momentumBudget) {
 			lastDesired = 0.;
 			return;
@@ -148,6 +149,7 @@ void THRUSTER::Poll_Sensors(int currentTimestep) {
 
 	if(proprioceptiveSensor) {
 		double reading = momentumBudget>0 ? 1. - 2.*momentumUsed/momentumBudget : 1.;
+//		std::cerr << "mb: " << momentumBudget << " mu: " << momentumUsed << " gr: " << reading << std::endl;
 		proprioceptiveSensor->Poll(reading, currentTimestep);
 	}
 }
