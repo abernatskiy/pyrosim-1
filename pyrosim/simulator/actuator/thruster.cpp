@@ -39,6 +39,7 @@ void THRUSTER::Actuate(void) {
 		return;
 
 	double motorNeuronValue = motorNeurons[0]->Get_Value();
+//	std::cerr << "mnval: " << motorNeuronValue << std::endl;
 	if ( motorNeuronValue < shutoffThreshold )
 		return;
 

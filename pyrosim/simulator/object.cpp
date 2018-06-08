@@ -177,8 +177,20 @@ void OBJECT::Unset_Adhesion(int adhesionKind) {
 
 void OBJECT::Process_Adhesive_Touch(dWorldID world, OBJECT* other) {
 
+
+//	std::cerr << "Processing adhesive touch..." << std::endl;
 	// Find all adhesion groups to which *other is susceptible and which *this exhibits, keeping in mind that there may be some duplicates among the latter.
 	std::multiset<int> ats; // adhesion types set
+
+/*
+	std::cerr << "Others susceptible adhesion types:";
+	for(auto susIt = other->adhesionTypesSusceptible.begin(); susIt!= other->adhesionTypesSusceptible.end(); susIt++)
+		std::cerr << " " << *susIt;
+	std::cerr << "\nSelf exhibiting adhesion types:";
+	for(auto exhIt = adhesionTypesExhibiting.begin(); exhIt!=  adhesionTypesExhibiting.end(); exhIt++)
+		std::cerr << " " << *exhIt;
+	std::cerr << "\n";
+*/
 
 	std::set<int>::iterator susIt = other->adhesionTypesSusceptible.begin();
 	std::multiset<int>::iterator exhIt = adhesionTypesExhibiting.begin();
@@ -196,6 +208,7 @@ void OBJECT::Process_Adhesive_Touch(dWorldID world, OBJECT* other) {
 	// If there are any valid adhesion groups, add a joint and make a record about why it was added
 	if(!ats.empty()) {
 
+//		std::cerr << "Set of adhesion groups nonempty! Creating a joint" << std::endl;
 		dJointID j = dJointCreateFixed(world, 0);
 		dJointAttach(j, Get_Body(), other->Get_Body());
 		dJointSetFixed(j);

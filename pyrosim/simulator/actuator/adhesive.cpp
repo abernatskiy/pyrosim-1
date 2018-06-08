@@ -15,7 +15,7 @@ void ADHESIVE::Actuate(void) {
 	// Update the adhesion groups according to the output of the motor neuron
 	double neuVal = motorNeurons[0]->Get_Value();
 
-//	std::cerr << neuVal << std::endl;
+//	std::cerr << "Neuron value: " << neuVal << " enabled now: " << enabledNow << std::endl;
 
 	if ( enabledNow && neuVal <= 0.0 ) {
 
