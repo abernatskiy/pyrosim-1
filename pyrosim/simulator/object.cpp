@@ -167,6 +167,7 @@ void OBJECT::Unset_Adhesion(int adhesionKind) {
 
 	// Destroy the obsolete joints and burn the records
 	for (std::vector<dJointID>::iterator itUnJoint=unstuckJoints.begin(); itUnJoint!=unstuckJoints.end(); itUnJoint++) {
+		// std::cerr << "Removing a joint " << *itUnJoint << " at body " << ID << std::endl;
 		dJointDestroy(*itUnJoint);
 		adhesiveJointsToTypes.erase(*itUnJoint);
 	}
@@ -177,8 +178,7 @@ void OBJECT::Unset_Adhesion(int adhesionKind) {
 
 void OBJECT::Process_Adhesive_Touch(dWorldID world, OBJECT* other) {
 
-
-//	std::cerr << "Processing adhesive touch..." << std::endl;
+	//std::cerr << "Processing adhesive touch between bodies " << ID << " (a " << Get_Shape_String() << ") and " << other->Get_ID() << " (a " << other->Get_Shape_String() << ")" << std::endl;
 	// Find all adhesion groups to which *other is susceptible and which *this exhibits, keeping in mind that there may be some duplicates among the latter.
 	std::multiset<int> ats; // adhesion types set
 
@@ -208,10 +208,11 @@ void OBJECT::Process_Adhesive_Touch(dWorldID world, OBJECT* other) {
 	// If there are any valid adhesion groups, add a joint and make a record about why it was added
 	if(!ats.empty()) {
 
-//		std::cerr << "Set of adhesion groups nonempty! Creating a joint" << std::endl;
 		dJointID j = dJointCreateFixed(world, 0);
 		dJointAttach(j, Get_Body(), other->Get_Body());
 		dJointSetFixed(j);
+
+		//std::cerr << "Set of adhesion groups nonempty! Creating a fixed joint " << j << std::endl;
 
 		adhesiveJointsToTypes[j] = ats;
 	}
@@ -241,6 +242,17 @@ void OBJECT::Draw(void) {
 	for(std::vector<LIGHT_SOURCE>::iterator lsit=lightSources.begin(); lsit!=lightSources.end(); lsit++)
 		lsit->Draw();
 	// TODO: add light sensor drawing
+}
+
+std::string OBJECT::Get_Shape_String(void) {
+
+	switch (myShape) {
+		case BOX: return "box";
+		case CYLINDER: return "cylinder";
+		case CAPSULE: return "capsule";
+		case SPHERE: return "sphere";
+		default: return "unknown";
+	}
 }
 
 void OBJECT::Draw_Ray_Sensor(double x, double y, double z, int t) {

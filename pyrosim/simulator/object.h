@@ -116,6 +116,7 @@ public:
 
 	int Get_Group(void) {return collisionGroup;};
 	int Get_ID(void) {return ID;};
+	std::string Get_Shape_String(void);
 
 	double Get_Length(void) {return length;};
 	double Get_Radius(void) {return radius;};
