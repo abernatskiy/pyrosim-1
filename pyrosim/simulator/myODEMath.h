@@ -9,9 +9,13 @@
 
 // Reimplementations of certain useful internal ODE functions
 
+inline dReal myDVector3Length(dReal* v) {
+	return sqrt(v[0]*v[0] + v[1]*v[1] + v[2]*v[2]);
+}
+
 inline void myDVector3Normalize(dReal* v) {
 
-	dReal length = sqrt(v[0]*v[0] + v[1]*v[1] + v[2]*v[2]);
+	dReal length = myDVector3Length(v);
 	v[0] = v[0]/length; v[1] = v[1]/length; v[2] = v[2]/length;
 }
 
