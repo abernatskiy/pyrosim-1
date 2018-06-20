@@ -85,7 +85,7 @@ bool TETHER::Create_Proprioceptive_Sensor(int sensorID, int evalPeriod) {
 void TETHER::Poll_Sensors(int currentTimestep) {
 
 	if(proprioceptiveSensor)
-		proprioceptiveSensor->Poll(currentTension, currentTimestep);
+		proprioceptiveSensor->Poll(currentTension / forceConstant, currentTimestep);
 }
 
 void TETHER::Update_Sensor_Neurons(int t) {
