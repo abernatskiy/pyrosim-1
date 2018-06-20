@@ -12,6 +12,8 @@
 #include "neuralNetwork.h"
 class NEURAL_NETWORK; // AB: circular dependence in declaration is required to be able to connect neurons to anything in the environment
 
+#include "sensor/globalCollision.h"
+
 /***** ACTUATOR SUPPORT DEFINITIONS *****/
 
 // Generic part:
@@ -56,6 +58,8 @@ private:
 	ACTUATOR* actuators[MAX_ACTUATORS];
 	NEURAL_NETWORK* neuralNetwork;
 
+	GLOBAL_COLLISION_SENSOR* globalCollisionSensor;
+
 public:
 	ENVIRONMENT(void);
 	~ENVIRONMENT(void);
@@ -64,10 +68,11 @@ public:
 	void Draw(int debug=0);
 	void Get_Object_Position(float* xyz, int bodyID);
 	void Poll_Sensors(int timeStep);
-    void Read_From_Python(dWorldID world, dSpaceID space, Data* data);
+	void Read_From_Python(dWorldID world, dSpaceID space, Data* data);
 	void Update_Neural_Network(int timeStep);
 	void Update_Forces(int timeStep);
 	void Write_Sensor_Data(int evalPeriod);
+	void Set_Global_Collision_Sensor(OBJECT* firstCollidingObject, OBJECT* secondCollidingObject, int timeStep);
 
 	OBJECT* Get_Object(int idx) {assert(idx<numberOfBodies); return objects[idx];};
 	ACTUATOR* Get_Actuator(int idx) {assert(idx<numberOfActuators); return actuators[idx];};
@@ -85,6 +90,7 @@ private:
 	void Create_Proprioceptive_Sensor(int evalPeriod);
 	void Create_Touch_Sensor(int evalPeriod);
 	void Create_Vestibular_Sensor(int evalPeriod);
+	void Create_Global_Collision_Sensor(int evalPeriod);
 
 	void Create_Object(dWorldID world, dSpaceID space, int index, int objType);
 	void Create_Light_Source(void);

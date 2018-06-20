@@ -22,11 +22,9 @@ void GLOBAL_COLLISION_SENSOR::Set(OBJECT* firstCollidingObject, OBJECT* secondCo
 void GLOBAL_COLLISION_SENSOR::Update_Last_Reading(double relativeVelocity, int tt) {
 
 	double sensorReading = Get_Sensor_Reading(relativeVelocity);
+
 	if(mcs[tt]<sensorReading)
-	{
 		mcs[tt] = sensorReading;
-//		lastReading = sensorReading;
-	}
 }
 
 double GLOBAL_COLLISION_SENSOR::Get_Sensor_Reading(double relativeVelocity) {

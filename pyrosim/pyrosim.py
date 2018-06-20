@@ -1650,6 +1650,30 @@ class Simulator(object):
 
         return sensor_id
 
+    def send_global_collision_sensor(self, scale, logarithmic=False):
+        """Creates a sensor that senses all collisions in the environment.
+
+           The sensor outputs the maximum relative velocity V of all
+           collisions that occured at the current time step, transformed as
+           follows:
+
+             if logarithmic:
+                 ln(1+V/scale)
+             else:
+                 V/scale
+
+        """
+
+        assert scale > 0., 'Velocity scale must be greater than 0'
+
+        sensor_id = self._num_sensors
+        self._num_sensors += 1
+
+        self._send('GlobalCollisionSensor',
+                   sensor_id, scale, 1 if logarithmic else 0)
+
+        return sensor_id
+
 # ------Synapses------------------------------
     def send_synapse(self, source_neuron_id, target_neuron_id, weight):
         """Sends a synapse to the simulator

@@ -15,7 +15,8 @@ extern const int CAPSULE;
 
 ENVIRONMENT::ENVIRONMENT(void) : numberOfBodies(0),
                                  numberOfActuators(0),
-                                 neuralNetwork(new NEURAL_NETWORK) {};
+                                 neuralNetwork(new NEURAL_NETWORK),
+                                 globalCollisionSensor(NULL) {};
 
 ENVIRONMENT::~ENVIRONMENT(void) {}; // FIXME: destroy the neural network when its destructor is sane
 
@@ -144,6 +145,8 @@ void ENVIRONMENT::Read_From_Python(dWorldID world, dSpaceID space, Data* data)
 			Create_Light_Sensor(data->evaluationTime);
 		else if ( strcmp(incomingString,"VestibularSensor") == 0 )
 			Create_Vestibular_Sensor(data->evaluationTime);
+		else if ( strcmp(incomingString,"GlobalCollisionSensor") == 0 )
+			Create_Global_Collision_Sensor(data->evaluationTime);
 		else if ( strcmp(incomingString,"LightSource") == 0 )
 			Create_Light_Source();
 
@@ -187,17 +190,24 @@ void ENVIRONMENT::Update_Forces(int timeStep){
 }
 void ENVIRONMENT::Write_Sensor_Data(int evalPeriod) {
 
-    std::cerr << "finishing" << std::endl;
+	std::cerr << "finishing" << std::endl;
 
 	for (int i=0; i<numberOfBodies; i++)
-
 		objects[i]->Write_To_Python(evalPeriod);
 
-    for (int j=0; j<numberOfActuators; j++)
-
+	for (int j=0; j<numberOfActuators; j++)
 		actuators[j]->Write_To_Python(evalPeriod);
 
+	if(globalCollisionSensor)
+		globalCollisionSensor->Write_To_Python(evalPeriod);
+
 	std::cout << "Done\n";
+}
+
+void ENVIRONMENT::Set_Global_Collision_Sensor(OBJECT* fco, OBJECT* sco, int timeStep) {
+
+	if(globalCollisionSensor)
+		globalCollisionSensor->Set(fco, sco, timeStep);
 }
 
 // ----------------------- Private methods ---------------------------
@@ -323,6 +333,18 @@ void ENVIRONMENT::Create_Vestibular_Sensor(int evalPeriod) {
 	std::cin >> objectIndex;
 
 	objects[objectIndex]->Create_Vestibular_Sensor(ID,evalPeriod);
+}
+
+void ENVIRONMENT::Create_Global_Collision_Sensor(int evalPeriod) {
+
+	int ID;
+	double scale;
+	bool isLog;
+	std::cin >> ID;
+	std::cin >> scale;
+	std::cin >> isLog;
+
+	globalCollisionSensor = new GLOBAL_COLLISION_SENSOR(scale, isLog, ID, evalPeriod);
 }
 
 void ENVIRONMENT::Update_Sensor_Neurons(int timeStep) {

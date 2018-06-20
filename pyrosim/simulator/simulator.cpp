@@ -92,7 +92,7 @@ void Handle_Proximity_Sensor(dGeomID o1, dGeomID o2) {
 		OBJECT* obj2 = static_cast<GeomData*>(dGeomGetData(o2)) -> objectPtr;
 
 /*
-		std::cerr << "Contact depth: " << contact.geom.depth << "\n";
+		std::cerr << "	Contact depth: " << contact.geom.depth << "\n";
 		const dReal* sensorpos = dGeomGetPosition(o1);
 		std::cerr << "Sensor position: " << sensorpos[0] << " " << sensorpos[1] << " " << sensorpos[2] << "\n";
 		std::cerr << "Contact position: " << contact.geom.pos[0] << " " << contact.geom.pos[1] << " " << contact.geom.pos[2] << "\n";
@@ -141,8 +141,8 @@ static void nearCallback (void *callbackData, dGeomID o1, dGeomID o2)
 	// Cancel collisions between distance sensors and other objects.
 	if( Handle_Collision_Sensors(o1, o2) ) return;
 
-	OBJECT *d1 = static_cast<GeomData*>(dGeomGetData(o1)) -> objectPtr;
-	OBJECT *d2 = static_cast<GeomData*>(dGeomGetData(o2)) -> objectPtr;
+	OBJECT* d1 = static_cast<GeomData*>(dGeomGetData(o1)) -> objectPtr;
+	OBJECT* d2 = static_cast<GeomData*>(dGeomGetData(o2)) -> objectPtr;
 
 	if ( d1 && d2 ){
 		if (dAreConnected (d1->Get_Body(),d2->Get_Body())) return; //no collision between joint connected bodies
@@ -152,6 +152,8 @@ static void nearCallback (void *callbackData, dGeomID o1, dGeomID o2)
 
 		d1->Process_Adhesive_Touch(world, d2);
 		d2->Process_Adhesive_Touch(world, d1);
+
+		environment->Set_Global_Collision_Sensor(d1, d2, timer);
 	}
 
 	// std::cerr << "Collision Occurs" << std::endl;
@@ -244,9 +246,9 @@ static void command (int cmd)
           if (f) {
             dWorldExportDIF (world,f,"");
             fclose (f);
-        }
-    }
-}
+			}
+		}
+	}
 }
 
 // simulation loop
