@@ -27,6 +27,14 @@ bool NEURAL_NETWORK::Is_A_Synapse_Type(std::string typeName) {
 	return typeName.compare("Synapse") == 0;
 }
 
+int NEURAL_NETWORK::Get_Current_Controller_ID(void) {
+
+	if(parallelSwitches[0])
+		return parallelSwitches[0]->Get_Current_Control_ID();
+	else
+		return -1;
+}
+
 void NEURAL_NETWORK::Read_Neuron_From_Python(std::string neuronTypeStr, ENVIRONMENT* env, Data* data) {
 
 	neurons[numNeurons] = new NEURON();

@@ -1394,6 +1394,21 @@ class Simulator(object):
         return light_source_id, position_sensor_id
 
 # ----------Sensors----------------------
+    def send_current_controller_sensor(self):
+        """Creates a sensor that returns the ID of the currently dominating control
+           input neuron, i.e. the neuron that determines which controller is
+           currently used
+
+           Returns
+           -------
+           int
+               The id tag of the sensor
+        """
+        sensor_id = self._num_sensors
+        self._num_sensors += 1
+        self._send('CurrentControllerSensor', sensor_id)
+        return sensor_id
+
     def send_is_seen_sensor(self, body_id):
         """Attaches a sensor which detects when a body is being hit by a ray sensor
 

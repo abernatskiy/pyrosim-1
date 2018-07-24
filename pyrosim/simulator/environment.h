@@ -13,6 +13,7 @@
 class NEURAL_NETWORK; // AB: circular dependence in declaration is required to be able to connect neurons to anything in the environment
 
 #include "sensor/globalCollision.h"
+#include "sensor/currentController.h"
 
 /***** ACTUATOR SUPPORT DEFINITIONS *****/
 
@@ -59,6 +60,7 @@ private:
 	NEURAL_NETWORK* neuralNetwork;
 
 	GLOBAL_COLLISION_SENSOR* globalCollisionSensor;
+	CURRENT_CONTROLLER_SENSOR* currentControllerSensor;
 
 public:
 	ENVIRONMENT(void);
@@ -91,6 +93,7 @@ private:
 	void Create_Touch_Sensor(int evalPeriod);
 	void Create_Vestibular_Sensor(int evalPeriod);
 	void Create_Global_Collision_Sensor(int evalPeriod);
+	void Create_Current_Controller_Sensor(int evalPeriod);
 
 	void Create_Object(dWorldID world, dSpaceID space, int index, int objType);
 	void Create_Light_Source(void);

@@ -22,7 +22,11 @@ private:
 	void Select_Current_Option(void);
 
 public:
-	PARALLEL_SWITCH(void) : numChannels(0), numOptions(0), currentOption(-1) {};
+	PARALLEL_SWITCH(void) : numChannels(0),
+	                        numOptions(0),
+	                        currentOption(0) // FIXME: generally, sensors must be polled and passed through the networks first to select the controller
+	                                         // Zeroth controller selected arbitrarily at the first timestep
+	{};
 	void Read_From_Python(void);
 	void Print(void);
 	bool Is_A_Control_Neuron_Of_This_Switch(int ID) {return std::find(controlIDs.begin(), controlIDs.end(), ID) != controlIDs.end();};
@@ -31,6 +35,8 @@ public:
 	void Set_Control_Neuron_Value(int controlNeuronID, double value);
 	int Get_Input_ID(int outputID);
 	void Reset(void);
+	int Get_Current_Control_ID(void) {return controlIDs[currentOption];};
+
 };
 
 #endif // _PARALLEL_SWITCH_H

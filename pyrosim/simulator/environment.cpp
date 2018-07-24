@@ -149,6 +149,8 @@ void ENVIRONMENT::Read_From_Python(dWorldID world, dSpaceID space, Data* data)
 			Create_Global_Collision_Sensor(data->evaluationTime);
 		else if ( strcmp(incomingString,"LightSource") == 0 )
 			Create_Light_Source();
+		else if ( strcmp(incomingString,"CurrentControllerSensor") == 0 )
+			Create_Current_Controller_Sensor(data->evaluationTime);
 
 		//Neural network components: currently neurons and synapses
 		else if ( neuralNetwork->Is_A_Neuron_Type(incomingString) )
@@ -175,6 +177,9 @@ void ENVIRONMENT::Poll_Sensors(int timeStep) {
 
 	for (int j=0;j<numberOfActuators;j++)
 		actuators[j]->Poll_Sensors(timeStep);
+
+	if(currentControllerSensor)
+		currentControllerSensor->Set(neuralNetwork->Get_Current_Controller_ID(), timeStep);
 }
 
 void ENVIRONMENT::Update_Neural_Network(int timeStep) {
@@ -200,6 +205,9 @@ void ENVIRONMENT::Write_Sensor_Data(int evalPeriod) {
 
 	if(globalCollisionSensor)
 		globalCollisionSensor->Write_To_Python(evalPeriod);
+
+	if(currentControllerSensor)
+		currentControllerSensor->Write_To_Python(evalPeriod);
 
 	std::cout << "Done\n";
 }
@@ -345,6 +353,15 @@ void ENVIRONMENT::Create_Global_Collision_Sensor(int evalPeriod) {
 	std::cin >> isLog;
 
 	globalCollisionSensor = new GLOBAL_COLLISION_SENSOR(scale, isLog, ID, evalPeriod);
+}
+
+void ENVIRONMENT::Create_Current_Controller_Sensor(int evalPeriod) {
+
+	int ID;
+	std::cin >> ID;
+
+	currentControllerSensor = new CURRENT_CONTROLLER_SENSOR(ID, evalPeriod);
+
 }
 
 void ENVIRONMENT::Update_Sensor_Neurons(int timeStep) {

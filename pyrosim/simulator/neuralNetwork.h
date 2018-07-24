@@ -40,6 +40,8 @@ public:
 	bool Is_A_Synapse_Type(std::string typeName);
 	bool Is_A_Switch_Type(std::string typeName);
 
+	int Get_Current_Controller_ID(void);
+
 	void Read_Neuron_From_Python(std::string neuronTypeStr, ENVIRONMENT* environment, Data* data);
 	void Read_Synapse_From_Python(std::string synapseTypeStr, ENVIRONMENT* environment, Data* data);
 	void Read_Switch_From_Python(std::string switchTypeStr, ENVIRONMENT* environment, Data* data);
