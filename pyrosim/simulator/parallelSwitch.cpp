@@ -9,17 +9,37 @@
 
 void PARALLEL_SWITCH::Select_Current_Option(void) {
 
-	currentOption = -1;
+//	currentOption = -1;
+//
+//	double max = -1*INFINITY;
+//	for(int i=0; i<numOptions; i++) {
+//		if(max < controlInputs[i]) {
+//			max = controlInputs[i];
+//			currentOption = i;
+//		}
+//	}
+//	assert(currentOption != -1);
+//	assert(max != -1*INFINITY);
 
-	double max = -1*INFINITY;
-	for(int i=0; i<numOptions; i++) {
-		if(max < controlInputs[i]) {
-			max = controlInputs[i];
-			currentOption = i;
+	double curDistance, curdx;
+	double minInstanceDistance = INFINITY;
+
+	for(unsigned k=0; k<numInstances; k++) {
+
+		curDistance = 0.;
+		for(unsigned j=0; j<numControls; j++) {
+			curdx = controlInputs[j] - instances[k][j];
+			curDistance += (curdx*curdx);
+		}
+
+		if(curDistance < minInstanceDistance) {
+			minInstanceDistance = curDistance;
+			currentOption = controllerIdxs[k];
 		}
 	}
-	assert(currentOption != -1);
-	assert(max != -1*INFINITY);
+
+	assert(minInstanceDistance != INFINITY);
+
 }
 
 //////// Public methods ////////
@@ -30,6 +50,7 @@ void PARALLEL_SWITCH::Read_From_Python(void) {
 
 	std::cin >> numChannels;
 	std::cin >> numOptions;
+	std::cin >> numControls;
 
 	int currentID;
 
@@ -49,19 +70,41 @@ void PARALLEL_SWITCH::Read_From_Python(void) {
 		allIDs.insert(currentID);
 	}
 
-	for(unsigned i=0; i<numOptions; i++) {
+	for(unsigned i=0; i<numControls; i++) {
 		std::cin >> currentID;
 		controlIDs.push_back(currentID);
 		allIDs.insert(currentID);
 	}
 
-	for(unsigned i=0; i<numOptions; i++)
-		controlInputs.push_back(-1*INFINITY);
+	std::cin >> numInstances;
+
+	for(unsigned i=0; i<numInstances; i++) {
+		int curControllerIdx;
+		std::vector<double> curInstance;
+
+		std::cin >> curControllerIdx;
+		for(unsigned j=0; j<numControls; j++) {
+			double currentChannelVal;
+			std::cin >> currentChannelVal;
+			curInstance.push_back(currentChannelVal);
+		}
+
+		if(curControllerIdx < 0 || curControllerIdx >= numOptions) {
+			std::cerr << "Cannot map an instance to controller " << curControllerIdx << " - only have " << numOptions << " controllers!\n";
+			exit(EXIT_FAILURE);
+		}
+
+		controllerIdxs.push_back(curControllerIdx);
+		instances.push_back(curInstance);
+	}
+
+	for(unsigned i=0; i<numControls; i++)
+		controlInputs.push_back(0.);
 }
 
 void PARALLEL_SWITCH::Print(void) {
 
-	std::cout << "Parallel switch with " << numChannels << " channels and " << numOptions << " options, a total of " << allIDs.size() << " virtual neurons\n";
+	std::cout << "Parallel switch with " << numChannels << " channels and " << numOptions << " options, controlled by " << numControls << " controls\n";
 	std::cout << "\nInputs:\n";
 	for(unsigned i=0; i<numOptions; i++) {
 		for(unsigned j=0; j<numChannels; j++)
@@ -72,15 +115,22 @@ void PARALLEL_SWITCH::Print(void) {
 	for(unsigned j=0; j<numChannels; j++)
 		std::cout << outputIDs[j] << ' ';
 	std::cout << "\nControls:\n";
-	for(unsigned i=0; i<numOptions; i++)
+	for(unsigned i=0; i<numControls; i++)
 		std::cout << controlIDs[i] << ' ';
 	std::cout << '\n';
+
+	std::cout << "\nInstances (a total of " << numInstances << ") :\n";
+	for(unsigned k=0; k<numInstances; k++) {
+		for(unsigned i=0; i<numControls; i++)
+			std::cout << instances[k][i] << " ";
+		std::cout << "- maps to controller " << controllerIdxs[k] << "\n";
+	}
 }
 
 void PARALLEL_SWITCH::Set_Control_Neuron_Value(int controlNeuronID, double value) {
 
 	int controlNeuronIdx = -1;
-	for(unsigned i=0; i<numOptions; i++) {
+	for(unsigned i=0; i<numControls; i++) {
 		if(controlIDs[i] == controlNeuronID) {
 			controlNeuronIdx = i;
 			break;
@@ -112,5 +162,5 @@ int PARALLEL_SWITCH::Get_Input_ID(int outputID) {
 void PARALLEL_SWITCH::Reset(void) {
 
 	for(auto it=controlInputs.begin(); it!=controlInputs.end(); it++)
-		*it = -1*INFINITY;
+		*it = 0.;
 }
