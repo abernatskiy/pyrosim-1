@@ -1271,8 +1271,10 @@ class Simulator(object):
 
         return neuron_id
 
-    def send_parallel_switch(self, num_channels, num_options, inputs, controls):
-        """Send a virtual group of neurons that enables the controller to
+    def send_instance_based_parallel_switch(self, num_channels, num_options, num_controls, inputs, controls, instances):
+        """OBSOLETE DESCRIPTION, CHECK SOURCE
+
+			     Send a virtual group of neurons that enables the controller to
            have subnetworks and switch between them.
 
         A switch with N channels and M options has:
@@ -1296,18 +1298,31 @@ class Simulator(object):
             the largest control input determines the number of option
             to be activated.
 
+        instances: dict: (tuple of floats) -> int
+            the controller-choosing set of instance vectors
+
         Returns
         -------
         outputs
             Array of N virtual output neuron IDs
         """
         assert num_channels > 0, 'Number of channels in a parallel swich must be positive'
-        assert num_options > 1, 'Number of channels in a parallel swich must be greater than 1'
+        assert num_options > 1, 'Number of controllers in a parallel swich must be greater than 1'
+        assert num_controls > 0, 'Number of controls in a parallel swich must be positive'
 
         outputs = list(range(self._num_neurons, self._num_neurons+num_channels))
         self._num_neurons += num_channels
 
-        to_send = ['ParallelSwitch', num_channels, num_options] + sum(inputs, []) + outputs + controls
+        to_send = ['ParallelSwitch', num_channels, num_options, num_controls] + \
+                  sum(inputs, []) + outputs + controls
+
+        numInstances = len(instances)
+
+        to_send += [ numInstances ]
+
+        for inst, idx in instances.items():
+#            print(str(inst) + ' ' + str(idx))
+            to_send += [ idx ] + list(inst)
 
         self._num_switches += 1
 

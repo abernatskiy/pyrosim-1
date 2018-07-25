@@ -34,14 +34,21 @@ mn2 = makeWavebot(1,0)
 fast_fneuron = sim.send_function_neuron(function=lambda x: math.sin(x*10))
 slow_fneuron = sim.send_function_neuron(function=math.sin)
 switch_fneuron = sim.send_function_neuron(function=lambda x: math.sin(x/4))
-switch_bias = sim.send_bias_neuron(value=0.0)
+# switch_bias = sim.send_bias_neuron(value=0.0)
 
 # Both bots either wave fast or slow
 # The regime is governed by the slowest function neuron
-psoutput = sim.send_parallel_switch(2, 2, [[fast_fneuron, fast_fneuron], [slow_fneuron, slow_fneuron]], [switch_fneuron, switch_bias])
+psoutput = sim.send_instance_based_parallel_switch(2, 2, 1, [[fast_fneuron, fast_fneuron], [slow_fneuron, slow_fneuron]], [switch_fneuron], {(-2,):0, (2,):1})
 sim.send_synapse(psoutput[0], mn1, weight=1.)
 sim.send_synapse(psoutput[1], mn2, weight=1.)
+
+ccsen = sim.send_current_controller_sensor()
 
 sim.start()
 
 sim.wait_to_finish()
+
+ccsendata = sim.get_sensor_data(ccsen)
+
+for ccreading in ccsendata:
+	print(str(ccreading))
