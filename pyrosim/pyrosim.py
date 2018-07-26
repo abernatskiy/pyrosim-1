@@ -1303,6 +1303,8 @@ class Simulator(object):
 
         Returns
         -------
+        id
+            ID of the parallel switch
         outputs
             Array of N virtual output neuron IDs
         """
@@ -1310,10 +1312,12 @@ class Simulator(object):
         assert num_options > 1, 'Number of controllers in a parallel swich must be greater than 1'
         assert num_controls > 0, 'Number of controls in a parallel swich must be positive'
 
+        switch_id = self._num_switches
+
         outputs = list(range(self._num_neurons, self._num_neurons+num_channels))
         self._num_neurons += num_channels
 
-        to_send = ['ParallelSwitch', num_channels, num_options, num_controls] + \
+        to_send = ['ParallelSwitch', switch_id, num_channels, num_options, num_controls] + \
                   sum(inputs, []) + outputs + controls
 
         numInstances = len(instances)
@@ -1328,7 +1332,7 @@ class Simulator(object):
 
         self._send(*to_send)
 
-        return outputs
+        return switch_id, outputs
 
 # ---------PhysicalProperties--------------------
     def send_external_force(self, body_id, x, y, z, time=0):
@@ -1409,7 +1413,7 @@ class Simulator(object):
         return light_source_id, position_sensor_id
 
 # ----------Sensors----------------------
-    def send_current_controller_sensor(self):
+    def send_current_controller_sensor(self, psid):
         """Creates a sensor that returns the ID of the currently dominating control
            input neuron, i.e. the neuron that determines which controller is
            currently used
@@ -1421,7 +1425,7 @@ class Simulator(object):
         """
         sensor_id = self._num_sensors
         self._num_sensors += 1
-        self._send('CurrentControllerSensor', sensor_id)
+        self._send('CurrentControllerSensor', sensor_id, psid)
         return sensor_id
 
     def send_is_seen_sensor(self, body_id):
