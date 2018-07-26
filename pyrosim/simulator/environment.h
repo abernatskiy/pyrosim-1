@@ -54,13 +54,14 @@ class ENVIRONMENT {
 private:
 	int numberOfBodies;
 	int numberOfActuators;
+	int numberOfCurrentControllerSensors;
 
 	OBJECT* objects[MAX_OBJECTS];
 	ACTUATOR* actuators[MAX_ACTUATORS];
 	NEURAL_NETWORK* neuralNetwork;
 
 	GLOBAL_COLLISION_SENSOR* globalCollisionSensor;
-	CURRENT_CONTROLLER_SENSOR* currentControllerSensor;
+	CURRENT_CONTROLLER_SENSOR* currentControllerSensors[MAX_SWITCHES];
 
 public:
 	ENVIRONMENT(void);

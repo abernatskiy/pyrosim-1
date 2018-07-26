@@ -12,6 +12,8 @@ private:
 	unsigned numOptions;
 	unsigned numControls;
 
+	int ID;
+
 	std::set<int> allIDs;
 	std::vector<std::vector<int>> inputIDs;
 	std::vector<int> outputIDs;
@@ -28,7 +30,8 @@ private:
 	std::vector<int> controllerIdxs;
 
 public:
-	PARALLEL_SWITCH(void) : numChannels(0),
+	PARALLEL_SWITCH(void) : ID(-1),
+	                        numChannels(0),
 	                        numOptions(0),
 	                        numControls(0),
 	                        currentOption(0) // FIXME: generally, sensors must be polled and passed through the networks first to select the controller
@@ -43,6 +46,7 @@ public:
 	int Get_Input_ID(int outputID);
 	void Reset(void);
 	int Get_Current_Control_ID(void) {return currentOption;};
+	int Get_ID(void) {return ID;};
 
 };
 

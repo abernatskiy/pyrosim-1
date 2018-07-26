@@ -16,7 +16,8 @@ extern const int CAPSULE;
 ENVIRONMENT::ENVIRONMENT(void) : numberOfBodies(0),
                                  numberOfActuators(0),
                                  neuralNetwork(new NEURAL_NETWORK),
-                                 globalCollisionSensor(NULL) {};
+                                 globalCollisionSensor(NULL),
+                                 numberOfCurrentControllerSensors(0) {};
 
 ENVIRONMENT::~ENVIRONMENT(void) {}; // FIXME: destroy the neural network when its destructor is sane
 
@@ -178,8 +179,12 @@ void ENVIRONMENT::Poll_Sensors(int timeStep) {
 	for (int j=0;j<numberOfActuators;j++)
 		actuators[j]->Poll_Sensors(timeStep);
 
-	if(currentControllerSensor)
-		currentControllerSensor->Set(neuralNetwork->Get_Current_Controller_ID(), timeStep);
+	for (int k=0; k<numberOfCurrentControllerSensors; k++) {
+		if(currentControllerSensors[k]) {
+			int psid = currentControllerSensors[k]->Get_Parallel_Switch_ID();
+			currentControllerSensors[k]->Set(neuralNetwork->Get_Current_Controller_By_Parallel_Switch_ID(psid), timeStep);
+		}
+	}
 }
 
 void ENVIRONMENT::Update_Neural_Network(int timeStep) {
@@ -206,8 +211,10 @@ void ENVIRONMENT::Write_Sensor_Data(int evalPeriod) {
 	if(globalCollisionSensor)
 		globalCollisionSensor->Write_To_Python(evalPeriod);
 
-	if(currentControllerSensor)
-		currentControllerSensor->Write_To_Python(evalPeriod);
+	for(int k=0; k<numberOfCurrentControllerSensors; k++) {
+		if(currentControllerSensors[k])
+			currentControllerSensors[k]->Write_To_Python(evalPeriod);
+	}
 
 	std::cout << "Done\n";
 }
@@ -357,11 +364,12 @@ void ENVIRONMENT::Create_Global_Collision_Sensor(int evalPeriod) {
 
 void ENVIRONMENT::Create_Current_Controller_Sensor(int evalPeriod) {
 
-	int ID;
+	int ID, psID;
 	std::cin >> ID;
+	std::cin >> psID;
 
-	currentControllerSensor = new CURRENT_CONTROLLER_SENSOR(ID, evalPeriod);
-
+	currentControllerSensors[numberOfCurrentControllerSensors] = new CURRENT_CONTROLLER_SENSOR(ID, psID, evalPeriod);
+	numberOfCurrentControllerSensors++;
 }
 
 void ENVIRONMENT::Update_Sensor_Neurons(int timeStep) {

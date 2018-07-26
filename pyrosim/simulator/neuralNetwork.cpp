@@ -27,12 +27,16 @@ bool NEURAL_NETWORK::Is_A_Synapse_Type(std::string typeName) {
 	return typeName.compare("Synapse") == 0;
 }
 
-int NEURAL_NETWORK::Get_Current_Controller_ID(void) {
+int NEURAL_NETWORK::Get_Current_Controller_By_Parallel_Switch_ID(int psid) {
 
-	if(parallelSwitches[0])
-		return parallelSwitches[0]->Get_Current_Control_ID();
-	else
-		return -1;
+	for(int k=0; k<numParallelSwitches; k++) {
+		if(parallelSwitches[k]) {
+			int curpsid = parallelSwitches[k]->Get_ID();
+			if(curpsid == psid)
+				return parallelSwitches[k]->Get_Current_Control_ID();
+		}
+	}
+	return -1;
 }
 
 void NEURAL_NETWORK::Read_Neuron_From_Python(std::string neuronTypeStr, ENVIRONMENT* env, Data* data) {

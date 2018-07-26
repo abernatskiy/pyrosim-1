@@ -48,6 +48,8 @@ void PARALLEL_SWITCH::Read_From_Python(void) {
 
 	static_assert(std::numeric_limits<double>::is_iec559, "IEEE 754 required");
 
+	std::cin >> ID;
+
 	std::cin >> numChannels;
 	std::cin >> numOptions;
 	std::cin >> numControls;
