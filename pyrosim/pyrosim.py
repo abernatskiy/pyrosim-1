@@ -1309,7 +1309,7 @@ class Simulator(object):
             Array of N virtual output neuron IDs
         """
         assert num_channels > 0, 'Number of channels in a parallel swich must be positive'
-        assert num_options > 1, 'Number of controllers in a parallel swich must be greater than 1'
+        assert num_options > 0, 'Number of controllers in a parallel swich must be positive'
         assert num_controls > 0, 'Number of controls in a parallel swich must be positive'
 
         switch_id = self._num_switches
