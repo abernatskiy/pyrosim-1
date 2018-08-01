@@ -33,6 +33,7 @@ public:
 	               dampeningCoefficient(10.),
 	               first(NULL),
 	               second(NULL),
+	               currentTension(0.),
 	               proprioceptiveSensor(NULL) {};
 
 	~TETHER(void) {

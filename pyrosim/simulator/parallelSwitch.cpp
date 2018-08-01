@@ -22,15 +22,21 @@ void PARALLEL_SWITCH::Select_Current_Option(void) {
 //	assert(max != -1*INFINITY);
 
 	double curDistance, curdx;
-	double minInstanceDistance = INFINITY;
+	double minInstanceDistance = 1e12;
 
 	for(unsigned k=0; k<numInstances; k++) {
 
 		curDistance = 0.;
 		for(unsigned j=0; j<numControls; j++) {
+//			std::cerr << "Control inputs: : " << controlInputs[j] << std::endl << std::flush;
+//			std::cerr << "instance: " << instances[k][j] << std::endl << std::flush;
+
 			curdx = controlInputs[j] - instances[k][j];
 			curDistance += (curdx*curdx);
 		}
+
+//		std::cerr << "Dist: " << curDistance << std::endl << std::flush;
+//		std::cerr << "MIn inst dist: " << minInstanceDistance << std::endl << std::flush;
 
 		if(curDistance < minInstanceDistance) {
 			minInstanceDistance = curDistance;
@@ -38,8 +44,9 @@ void PARALLEL_SWITCH::Select_Current_Option(void) {
 		}
 	}
 
-	assert(minInstanceDistance != INFINITY);
+	assert(minInstanceDistance != 1e12);
 
+//	exit(EXIT_FAILURE);
 }
 
 //////// Public methods ////////
@@ -100,8 +107,16 @@ void PARALLEL_SWITCH::Read_From_Python(void) {
 		instances.push_back(curInstance);
 	}
 
+
+//	std::cerr << "INITIALIZING THE CONTROLS INPUTS\n";
+//	std::cerr << "Num inputs: " << numControls << "\n";
 	for(unsigned i=0; i<numControls; i++)
 		controlInputs.push_back(0.);
+//
+//	std::cerr << "Inputs:";
+//	for(auto it=controlInputs.begin(); it!=controlInputs.end(); it++)
+//		std::cerr << " " << *it;
+//	std::cerr << "\n" << std::flush;
 }
 
 void PARALLEL_SWITCH::Print(void) {
@@ -139,6 +154,8 @@ void PARALLEL_SWITCH::Set_Control_Neuron_Value(int controlNeuronID, double value
 		}
 	}
 	assert(controlNeuronIdx != -1);
+
+//	std::cerr << "Control neuron index is " <<  controlNeuronIdx << std::endl << std::flush;
 
 	controlInputs[controlNeuronIdx] = value;
 

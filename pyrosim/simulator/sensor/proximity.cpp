@@ -30,6 +30,7 @@ PROXIMITY_SENSOR::PROXIMITY_SENSOR(dSpaceID space, OBJECT* myObj, int myID, int 
 
 	for(int tt=0; tt<evalPeriod; tt++) {
 		r[tt] = 0.0; t[tt] = 0.5; p[tt] = 0.5;
+		cr[tt] = 0.0; cg[tt] = 0.0; cb[tt] = 0.0;
 	}
 
 	sensorVolume = dCreateSphere(space, sensorRadius);

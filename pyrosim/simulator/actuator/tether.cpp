@@ -78,6 +78,8 @@ void TETHER::Draw() const {
 
 bool TETHER::Create_Proprioceptive_Sensor(int sensorID, int evalPeriod) {
 
+//	std::cerr << "CREATING A PROPRIOECPTIVE SENSOR" << std::endl << std::flush;
+
 	proprioceptiveSensor = new PROPRIOCEPTIVE_TETHER_SENSOR(sensorID, evalPeriod);
 	return true;
 }

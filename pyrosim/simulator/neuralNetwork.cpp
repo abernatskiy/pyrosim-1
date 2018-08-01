@@ -4,6 +4,7 @@
 #include <iostream>
 #include <cmath>
 #include <cstdlib>
+#include <fstream>
 
 #include "neuralNetwork.h"
 
@@ -109,6 +110,27 @@ void NEURAL_NETWORK::Update(int timeStep) {
 
 	Update_Neurons();
 	Threshold_Neurons();
+
+/*
+	std::ofstream log;
+	log.open("/tmp/motorlog.dat", std::ios::out | std::ios::app);
+	static bool firstTime = true;
+	if(firstTime) {
+		log << "# Neuron ids:";
+		for(unsigned i=0; i<numNeurons; i++) {
+			if(neurons[i] && neurons[i]->Get_Type() == 3)
+				log << " " << neurons[i]->Get_ID();
+		}
+		log << std::endl;
+		firstTime = false;
+	}
+	for(unsigned i=0; i<numNeurons; i++) {
+		if(neurons[i] && neurons[i]->Get_Type() == 3)
+			log << neurons[i]->Get_Value() << " ";
+	}
+	log << std::endl;
+	log.close();
+*/
 }
 
 // ------------------------- Private methods -----------------------------
